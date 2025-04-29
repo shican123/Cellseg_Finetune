@@ -132,8 +132,8 @@ class DataGenerator(Sequence):
 
 
 def train(args):
-    input_shape = (256, 256, 3) if args.type == "he" else (256, 256, 1)
-    pre_fn = f_pre_he if args.type == "he" else f_pre_ssdna
+    input_shape = (256, 256, 3) if args.stain_type == "he" else (256, 256, 1)
+    pre_fn = f_pre_he if args.stain_type == "he" else f_pre_ssdna
 
     init_gpu()
 
@@ -142,7 +142,7 @@ def train(args):
     print(f"Number of training samples: {len(tr_data)}, validation samples: {len(val_data)}")
 
     current_time = datetime.now().strftime("%b%d_%H-%M-%S")
-    model_save_path = os.path.join("finetuned_models", f"v3_{args.type}_{current_time}")
+    model_save_path = os.path.join("finetuned_models", f"v3_{args.stain_type}_{current_time}")
     os.makedirs(model_save_path, exist_ok=True)
 
     json_log_path = os.path.join(model_save_path, "train_log.json")

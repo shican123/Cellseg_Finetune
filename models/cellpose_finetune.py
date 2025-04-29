@@ -62,14 +62,14 @@ def load_cellpose_data(data_files, mask_files):
     return images, labels
 
 def train(args):
-    input_shape = (256, 256, 3) if args.type == "he" else (256, 256, 1)
+    input_shape = (256, 256, 3) if args.stain_type == "he" else (256, 256, 1)
 
     unique_sns = read_txt(args.txt_file)
     tr_data, tr_mask, val_data, val_mask = split_train_test(unique_sns, args.ratio)
     print(f"Number of training samples: {len(tr_data)}, validation samples: {len(val_data)}")
 
     current_time = datetime.now().strftime("%b%d_%H-%M-%S")
-    model_save_path = os.path.join("finetuned_models", f"cellpose_{args.type}_{current_time}")
+    model_save_path = os.path.join("finetuned_models", f"cellpose_{args.stain_type}_{current_time}")
     os.makedirs(model_save_path, exist_ok=True)
 
     model_name = f"finetuned_{args.pretrained_model}_{args.nb_epoch}_epoch"
@@ -81,7 +81,7 @@ def train(args):
     test_images, test_labels = load_cellpose_data(val_data, val_mask)
 
     # Initialize Cellpose model
-    model = models.CellposeModel(gpu=True, model_type=args.pretrained_model)
+    model = models.CellposeModel(gpu=True, stain_type=args.pretrained_model)
 
     # Train the model
     model_path, train_losses, test_losses = train_seg(

@@ -1,6 +1,6 @@
-# CellSeg Fine-Tune
+# CellSegAdapt
 
-A lightweight fine-tuning framework for cell segmentation, supporting:
+A lightweight framework for fine-tuning cell segmentation models with small datasets, optimized for spatial transcriptomics (CellBin). Efficiently adapt pre-trained models to new tissue types or staining conditions using minimal annotations. Achieve higher accuracy in cell boundary detection with just a few training samples. Supporting:
 
 - **Cellpose**
 - **CellBin v3**

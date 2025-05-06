@@ -159,7 +159,7 @@ def train(args):
 
     checkpoint = ModelCheckpoint(
         filepath=os.path.join(model_save_path, model_name),
-        save_best_only=True,
+        save_best_only=False,
         save_weights_only=False,
         monitor='val_loss',
         mode='min',

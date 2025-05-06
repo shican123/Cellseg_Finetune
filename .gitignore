@@ -1,4 +1,4 @@
 __pycache__/
+/weights/
 /finetuned_models/
-/pretrained_models/
 /trainset_list/

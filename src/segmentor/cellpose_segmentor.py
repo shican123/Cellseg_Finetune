@@ -184,7 +184,7 @@ def cellseg(file_lst, save_path, model_path):
             cropped_1 = np.uint8(remove_small_objects(cropped_1 > 0, min_size=2))
 
             save_name, _ = os.path.splitext(name)
-            save_name = f"{save_name}-cp_mask.tif"
+            save_name = f"{save_name}_cp_mask.tif"
             tifffile.imwrite(os.path.join(save_path, save_name), cropped_1, compression='zlib')
         except Exception as e:
             traceback.print_exc()

@@ -81,7 +81,7 @@ def train(args):
     test_images, test_labels = load_cellpose_data(val_data, val_mask)
 
     # Initialize Cellpose model
-    model = models.CellposeModel(gpu=True, stain_type=args.pretrained_model)
+    model = models.CellposeModel(gpu=True, pretrained_model=args.pretrained_model)
 
     # Train the model
     model_path, train_losses, test_losses = train_seg(

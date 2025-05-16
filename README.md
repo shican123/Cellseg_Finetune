@@ -9,15 +9,37 @@ Supports multiple image types (e.g., HE, SS), with options for training from scr
 
 ---
 
-## Requirements
-
-To install dependencies (recommended in a virtual environment):
+## Installation
+```bash
+git clone https://github.com/shican123/CellSegAdapt.git
+cd CellSegAdapt
+```
+Install dependencies (recommended in a virtual environment):
 
 ```bash
 pip install -r requirements.txt
 ```
 
 ## Prepare Your Data
+
+### Data Selection
+Select several (at least `20` are recommended to ensure the fine-tuning effect) `256×256`-sized small images from the entire chip image to be segmented and annotate them as training sets. The selected small images should be representative, especially including parts where the current segmentation results are not satisfactory (such as the hippocampus of the brain).
+
+If necessary, use `tools/crop_chips.py` to crop the chip image into `256×256`-sized small images.
+
+```bash
+python tools/crop_chips.py \
+  -i path/to/raw_images \
+  -o path/to/output_patches \
+  -s 256
+```
+The default value of the -s parameter is 256.
+
+Input file format must be `.tif`, and the suffixes must be `"-img.tif"` or `"-mask.tif"`.
+
+If filename contains coordinates like `chipA-x512_y512_w256_h256-img.tif,` cropping will retain correct spatial origin.
+
+Output format: `chip_id-xX_yY_wW_hH-img/mask.tif`, useful for traceability.
 
 ### Format
 
@@ -38,24 +60,6 @@ python tools/mask_convert.py -i input_folder -o output_folder -m s2i
 ### Naming Requirements
 
 The only difference between the file names of each image and its corresponding mask is the suffix `"-img.tif"` and `"-mask.tif"`.
-
-### Image Size
-
-The input image size of the fine-tuning model is fixed at `256×256`. If necessary, use `tools/crop_chips.py` to crop the chip image to a smaller image of a specified size.
-
-```bash
-python tools/crop_chips.py \
-  -i path/to/raw_images \
-  -o path/to/output_patches \
-  -s 256
-```
-The default value of the -s parameter is 256.
-
-Input file format must be `.tif`, and the suffixes must be `"-img.tif"` or `"-mask.tif"`.
-
-If filename contains coordinates like `chipA-x512_y512_w256_h256-img.tif,` cropping will retain correct spatial origin.
-
-Output format: `chip_id-xX_yY_wW_hH-img/mask.tif`, useful for traceability.
 
 ## Generate a Training List
 
@@ -102,7 +106,7 @@ python run_finetune.py \
 |  -v   | 16 |Validation batch size    |
 |  -e   | 500 | Number of training epochs. For the v3 model, due to its early stopping mechanism, it is the maximum number of training rounds. For the Cellpose model without early stopping, Cellpose officially recommends training for 100 epochs, and it may help to use more epochs, especially when you have more training data.     |
 
-## Output
+### Output
 
 After training, outputs are saved to `finetuned_models/model_timestamp/`:
 
@@ -111,3 +115,87 @@ After training, outputs are saved to `finetuned_models/model_timestamp/`:
 `train_log.json`: Training/validation loss log
 
 `loss_curve.png`: Training/validation loss plot
+
+## Cell Segmentation Using Fine-Tuned Models
+
+### v3
+
+```bash
+python src/segmentor/v3_segmentor.py \
+-i input/img/path \
+-o /path/to/output/floder \
+-p /path/to/model \
+-g gpu_index 
+```
+The input path supports large-size images, file/folder.
+
+### Cellpose
+
+Option 1: Use the official Cellpose CLI
+
+```bash
+python -m cellpose \
+--dir /path/to/image/floder \
+--pretrained_model /path/to/finetuned/model \
+--chan 0 \
+--save_tif \
+--use_gpu \
+--savedir /path/to/output/floder
+```
+Parameter Description:
+| Parameter | Description |
+|:----------:|:-------------:|
+| --dir  | Path to the  input images folder|
+| --pretrained_model | Fine-tuned model path (you can also enter `cyto/cyto3` to use the official pre-trained model)|
+| --chan | Segmentation channel, default is 0|
+| --save_tif | Segmentation results are saved in `.tif` format |
+| --use_gpu | Use GPU |
+| ---savedir | Output path |
+
+For more parameters, see: [Cellpose CLI — cellpose 3.1.1.1-24-g3864748 documentation,](https://cellpose.readthedocs.io/en/latest/cli.html) which can be selected according to actual needs.
+
+Option 1: Use the script `/src/segmentor/cellpose_segmentor.py`
+
+Cellpose official CLI does not support input of images that are too large. If you want to segment the entire chip image, use the script `/src/segmentor/cellpose_segmentor.py`:
+
+```bash
+python src/segmentor/cellpose_segmentor.py \
+-i /path/to/image.tif \
+-o /path/to/output/floder \
+-p /path/to/finetuned/model
+```
+Similarly, the `-p` parameter also supports inputting `cyto/cyto3` to use the official pre-trained model.
+
+## Evaluation of cell segmentation results
+### Use ImageJ
+If there is no groundtruth, you can use ImageJ and select `Image`>`Color`>`Merge Channels` to merge the original image and the model segmentation result, and then observe it with the naked eye.
+
+### Calculate cell segmentation evaluation indexs
+Run the script `src/evaluation/cell_eval_multi.py` to calculate the five indicators of `'Precision'`, `'Recall'`, `'F1'`, `'jaccrd'`, and `'dice'` and output the bar chart and box plot at the same time.
+```bash
+python src/evaluation/cell_eval_multi.py \
+-g path/to/groundtruth \
+-d path/to/model/results \
+-o output/path 
+```
+Assuming the folder structure is as follows, the `-d` parameter is the path of `dt_path`
+```markdown
+- dt_path
+  - cyto
+  - cyto_finetuned
+  - v3
+```
+
+## Use the segmentation results to obtain the cellbin matrix that combines cell location information
+```bash
+python src/downstream/generate_cgef.py \
+-i input/matrix/path \
+-o output/path \
+-m path/to/mask \
+```
+Parameter Description:
+| Parameter | Description |
+|:----------:|:-------------:|
+| -i  | Original gene expression matrix (`.gem.gz`/`.gef` format) path |
+| -o | Save path of cellbin matrix combined with cell position information|
+| -m | Model segmentation result mask file path|

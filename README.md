@@ -154,7 +154,7 @@ Parameter Description:
 
 For more parameters, see: [Cellpose CLI — cellpose 3.1.1.1-24-g3864748 documentation,](https://cellpose.readthedocs.io/en/latest/cli.html) which can be selected according to actual needs.
 
-Option 1: Use the script `/src/segmentor/cellpose_segmentor.py`
+Option 2: Use the script `/src/segmentor/cellpose_segmentor.py`
 
 Cellpose official CLI does not support input of images that are too large. If you want to segment the entire chip image, use the script `/src/segmentor/cellpose_segmentor.py`:
 

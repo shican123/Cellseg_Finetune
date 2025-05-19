@@ -127,7 +127,7 @@ python src/segmentor/v3_segmentor.py \
 -p /path/to/model \
 -g gpu_index 
 ```
-The input path supports large-size images, file/folder.
+The input path supports both large-scale images (e.g., whole-slide images) and cropped tiles, as well as batch processing via file or folder paths.
 
 ### Cellpose
 

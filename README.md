@@ -25,10 +25,10 @@ pip install -r requirements.txt
 ### Data Selection
 Select several (at least `20` are recommended to ensure the fine-tuning effect) `256×256`-sized small images from the entire chip image to be segmented and annotate them as training sets. The selected small images should be representative, especially including parts where the current segmentation results are not satisfactory (such as the hippocampus of the brain).
 
-If necessary, use `tools/crop_chips.py` to crop the chip image into `256×256`-sized small images.
+If necessary, use `tools/crop_image.py` to crop the chip image into `256×256`-sized small images.
 
 ```bash
-python tools/crop_chips.py \
+python tools/crop_image.py \
   -i path/to/raw_images \
   -o path/to/output_patches \
   -s 256

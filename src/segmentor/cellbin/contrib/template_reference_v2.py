@@ -13,10 +13,10 @@ from utils import clog
 
 class TemplateReferenceV2(TemplateReference):
     """
-    模板推导算法V2
-    分别通过点来拟合大致角度和尺度
-    再通过初步校准得到局部区域的精确角度尺度值
-    最终全局推导模板
+    Template derivation algorithm V2
+    Fit the approximate angle and scale through points
+    Then obtain the precise angle and scale value of the local area through preliminary calibration
+    Finally derive the template globally
     """
 
     MINIMIZE_METHOD = ['nelder-mead', 'slsqp', 'bfgs']
@@ -32,7 +32,6 @@ class TemplateReferenceV2(TemplateReference):
         self.set_scale_flag = False
         self.set_rotate_flag = False
 
-        # 2023/08/28新增 用于开发对接track线模板FOV信息
         self.fov_index = None
         self.fov_best_point = None
 
@@ -44,9 +43,7 @@ class TemplateReferenceV2(TemplateReference):
                          rotate_range=None,
                          search_thresh=None,
                          rotate_fov_min=None):
-        """
-        模板推导V2阈值
-        """
+
         if scale_range is not None:
             self.scale_range = scale_range
         if rotate_range is not None:
@@ -82,17 +79,11 @@ class TemplateReferenceV2(TemplateReference):
             self.qc_pts[ind] = points
 
     def _template_correct(self, qc_pts, n=5):
-        """
-        Args:
-            qc_pts: 已按照点数排序的点集 max->min
-            n: track角度遍历搜索所需FOV数量
-        """
         rotate_list = list()
         point_list = list()
         best_point = None
         index = 0
 
-        #####角度搜索
         if not self.set_rotate_flag:
             for pts in qc_pts[:n]:
                 if len(pts[1]) < 3:
@@ -126,7 +117,6 @@ class TemplateReferenceV2(TemplateReference):
             self.rotation = tmp_rot
             index = tmp_ind
 
-        #####尺度搜索
         if not self.set_scale_flag:
             scale, best_point = self._scale_search(qc_pts[index][1], self.scale_range)
             self.scale_x = self.scale_y = scale
@@ -137,9 +127,9 @@ class TemplateReferenceV2(TemplateReference):
 
     def _rotate_search(self, target_points, rotate_range=15):
         """
-        角度搜索
-        遍历角度 通过求得横向匹配点对 拟合直线得到的最小误差距离
-        再和拟合直线的角度与当前角度相减 最小值即为大致角度
+        Angle search
+        Traverse angles by finding the minimum error distance of the horizontal matching point pair and fitting the straight line
+        Then subtract the angle of the fitting straight line from the current angle. The minimum value is the approximate angle
 
         Args:
             target_points:
@@ -176,7 +166,6 @@ class TemplateReferenceV2(TemplateReference):
 
     def _scale_search(self, target_points, scale_range=0.3):
         """
-        尺度搜索
         Args:
             target_points:
             scale_range: 1 - scale_range ~ 1 + scale_range
@@ -201,9 +190,9 @@ class TemplateReferenceV2(TemplateReference):
     def _index_search(self, target_points, center_point=None):
         """
         Args:
-            target_points: 单个FOV的点集
+            target_points: Point set for a single FOV
         Return:
-            best_center_point: FOV中心点的坐标及索引
+            best_center_point: Coordinates and index of FOV center point
         """
         best_center_point = list()
         if center_point is None:
@@ -224,7 +213,7 @@ class TemplateReferenceV2(TemplateReference):
 
     def _valid_scale_judge(self, target_points, rate=1.2):
         """
-        搜索尺度时，解决对于小scale尺度匹配距离过小问题
+        When searching for scales, solve the problem of small matching distance for small scales
         """
         point_re, point_qc = self.pair_to_template(target_points, self.template, self.search_thresh)
 
@@ -243,7 +232,7 @@ class TemplateReferenceV2(TemplateReference):
                 valid_temp.append(point)
 
         if points_count / len(target_points) <= rate or \
-                points_count - len(target_points) <= 10: #匹配点圈内点数量不多于1.2倍或不多于10个检点数
+                points_count - len(target_points) <= 10: 
             return True
         elif points_count / len(target_points) <= 2 * rate or \
                 points_count - len(target_points) <= 20:
@@ -272,7 +261,7 @@ class TemplateReferenceV2(TemplateReference):
     @staticmethod
     def _gradient_std_search(src_points, dst_points, reci=False):
         """
-        对应点对的梯度标准差
+        Standard deviation of the gradient of corresponding point pairs
         """
         k_list = list()
         for src_point, dst_point in zip(src_points, dst_points):
@@ -284,7 +273,7 @@ class TemplateReferenceV2(TemplateReference):
     @staticmethod
     def _center_point_search(target_points):
         """
-        中心点匹配
+        Center point matching
         """
         target_points = np.array(target_points)
         x_mean = np.mean(target_points[:, 0])
@@ -293,7 +282,7 @@ class TemplateReferenceV2(TemplateReference):
 
     def _cross_line_points(self, center_point, scale, rotate, chip):
         """
-        中心点出发的十字线点集
+        Crosshair point set starting from the center point
         """
         points = list()
         temp = center_point
@@ -320,7 +309,7 @@ class TemplateReferenceV2(TemplateReference):
         return points
 
     def reference_template_v2(self, method_threshold=0.1):
-        """模板推导算法V2"""
+        """Template Derivation Algorithm V2"""
         self._check_parm()
         self._qc_points_to_gloabal(all_points=True)
         if len(self.qc_pts) == 0:
@@ -365,7 +354,7 @@ class TemplateReferenceV2(TemplateReference):
         """
         one point of temp0 map to only one point of temp1
         Args:
-            dis: 距离测量
+            dis: Distance measurement
         """
         import scipy.spatial as spt
 

@@ -73,11 +73,15 @@ def draw_boxplot(directory, output_path):
     eval_indexs = []
     
     # Read each Excel file and extract metrics data
-    for i, file_path in enumerate(file_paths):
+    for file_path in file_paths:
         df = pd.read_excel(file_path)
-        methods.append(os.path.basename(file_paths[i]).split('_')[0])
-        data[os.path.basename(file_paths[i]).split('_')[0]] = df
+        base_name = os.path.basename(file_path).replace('.xlsx', '')
+        method_name = base_name.split('_cell_segmentation')[0]
+        methods.append(method_name)
+        data[method_name] = df
         
+    methods = sorted(methods)
+
     eval_indexs = [index for index in data[methods[0]].columns[1:]]  # get evaluation index
     
     eval_pd = dict([(eval_index, pd.DataFrame()) for eval_index in eval_indexs])
@@ -212,7 +216,7 @@ class CellSegEval(object):
     def dump_info(self, save_path: str):
         import time
         t = time.strftime("%Y%m%d_%H%M%S", time.localtime())
-        save_path_ = os.path.join(save_path, '{}_cell_segmenatation_{}.xlsx'.format(self._method, t))
+        save_path_ = os.path.join(save_path, '{}_cell_segmentation_{}.xlsx'.format(self._method, t))
         self._object_metrics.to_excel(save_path_)
         models_logger.info('The evaluation results is stored under {}'.format(save_path_))
 

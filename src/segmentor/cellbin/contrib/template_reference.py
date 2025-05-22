@@ -50,11 +50,7 @@ class TemplateReference:
     ################
     '''init parm'''
     ################
-    def set_minimize_method(self, method):
-        """
-        Args:
-            method: 优化函数算法 ['nelder-mead', 'bfgs', 'slsqp']
-        """
+    def set_minimize_method(self, method)
         self._method = method
 
     def set_scale(self, scale_x: float, scale_y: float):
@@ -72,7 +68,6 @@ class TemplateReference:
                       range_thresh=None,
                       correct_thresh=None,
                       cluster_num=None):
-        """阈值参数定义"""
         if pair_thresh is not None:
             self._pair_thresh = pair_thresh
         if qc_thresh is not None:
@@ -85,18 +80,10 @@ class TemplateReference:
             self._cluster_num = cluster_num
 
     def set_chipno(self, chip_no):
-        '''
-        :param chip_no: 芯片标准周期
-        :return:
-        '''
         assert type(chip_no) == list or type(chip_no) == np.ndarray, "ChipNO must be a list or array."
         self.chip_no = chip_no
 
     def set_fov_location(self, global_loc):
-        '''
-        :param global_loc: 全局拼接坐标
-        :return:
-        '''
         self.fov_loc_array = global_loc
         # self.mosaic_width, self.mosaic_height = self.fov_loc_array[-1, -1] + self.fov_loc_array[1, 1]
         min_x = np.min(self.fov_loc_array[:, 1, 0][self.fov_loc_array[:, 1, 0] > 0])
@@ -144,13 +131,6 @@ class TemplateReference:
     '''reference'''
     ################
     def _delete_outline_points(self, points_re, points_qc, range_size=5000):
-        '''
-        离群点删除
-        :param points_re:
-        :param points_qc:
-        :param range_size: 框选尺寸
-        :return:
-        '''
         _points_qc = list()
         _points_re = list()
         for k, point in enumerate(points_qc):
@@ -168,9 +148,6 @@ class TemplateReference:
         # assert len(self.qc_pts) != 0 and len(self.template_qc_pts) != 0, "QC points is need init."
 
     def _global_qc_points_to_global(self):
-        '''
-        当QC点是全局点时使用 一般不用！！！
-        '''
         points_list = [self.qc_pts]
         for type_points in points_list:
             for fov_name in type_points.keys():
@@ -181,7 +158,6 @@ class TemplateReference:
                     break
 
     def _qc_points_to_gloabal(self, all_points=False):
-        '''QC点映射到全局坐标'''
         self.template_qc = list()
         points_list = [self.qc_pts]
         for type_points in points_list:
@@ -193,11 +169,6 @@ class TemplateReference:
                     self.template_qc.append(temp[:2])
                 else:
                     for point in type_points[fov_name]:
-                    # if all_points: 版本回退
-                    #     tmp_pts = type_points[fov_name]
-                    # else:
-                    #     tmp_pts = type_points[fov_name][::10]
-                    # for point in tmp_pts:
                         temp = copy.deepcopy(point)
                         try:
                             temp[:2] += self.fov_loc_array[row, col]
@@ -207,7 +178,7 @@ class TemplateReference:
                         except:
                             break
     @staticmethod
-    def pair_to_template(temp_qc, temp_re, threshold=10): #TODO 临时变量 非常重要！！！！！！！！！！！！！！！！！！！
+    def pair_to_template(temp_qc, temp_re, threshold=10): #TODO Temporary variables!! Very important！！！！！！！！！！！！！！！！！！！
         '''one point of temp0 map to only one point of temp1'''
         import scipy.spatial as spt
 
@@ -232,7 +203,6 @@ class TemplateReference:
         return theta, s_x, s_y
 
     def _mean_to_scale_and_rotate(self, points_re, points_qc):
-        '''求模板点和QC点 scale和rotate 差异的均值'''
         scale_x_list = []
         scale_y_list = []
         rotate_list = []
@@ -240,7 +210,6 @@ class TemplateReference:
 
             if point_qc[0] != self.template_center_pt[0]:
 
-                #旋转角
                 rotation_dst = math.degrees(
                     math.atan((point_qc[1] - self.template_center_pt[1]) / (point_qc[0] - self.template_center_pt[0])))
                 rotation_src = math.degrees(
@@ -270,7 +239,6 @@ class TemplateReference:
 
     @staticmethod
     def _leastsq_to_scale_and_rotate(point_re, point_qc, method="nelder-mead"):
-        '''最小化模板点和QC点距离 并求解出结果'''
         # point_re = np.array([[61.237, 35.355], [-35.355, 61.237], [-61.237, -35.355], [35.355, -61.237]])
         # point_qc = np.array([[100, 100], [-100, 100], [-100, -100], [100, -100]])
         from scipy.optimize import leastsq, minimize
@@ -325,9 +293,6 @@ class TemplateReference:
         return para
 
     def _caculate_scale_and_rotate(self, points_re, points_qc, mode='minimize', update=True, center=None):
-        '''
-        使用模板点和QC点计算出scale和rotate
-        '''
         if points_re.shape[1] == 4:
             points_re = points_re[:, :2]
 
@@ -349,7 +314,6 @@ class TemplateReference:
         points_qc = np.round(points_qc, 2)
 
         if mode == 'minimize':
-            # 最小值距离优化法
             para = self._leastsq_to_scale_and_rotate(points_re, points_qc, self._method)
             if para is None:
                 return
@@ -362,14 +326,12 @@ class TemplateReference:
                 # self.scale_x *= (1 + _scale_x)
                 # self.scale_y *= (1 + _scale_y)
         elif mode == 'mean':
-            # 均值法
             scale_x, scale_y, rotate = self._mean_to_scale_and_rotate(points_re, points_qc)
             if update:
                 self.rotation = rotate
                 self.scale_x = scale_x
                 self.scale_y = scale_y
         elif mode == 'homo':
-            # 单应性法
             matrix, mask = cv.estimateAffinePartial2D(points_re, points_qc)
             # matrix, mask = cv.findHomography(points_re, points_qc, 0)
             theta, s_x, s_y = self.resove_affine_matrix(matrix)
@@ -379,10 +341,6 @@ class TemplateReference:
                 self.scale_y = self.scale_y * s_y
 
     def first_template_correct(self, target_points, index, max_item=3, center_points=None):
-        """
-        Args:
-            target_points: 模板FOV的 QC检点（非track线检点）
-        """
         first_scale_x = self.scale_x
         first_scale_y = self.scale_y
 
@@ -405,7 +363,6 @@ class TemplateReference:
 
             self._caculate_scale_and_rotate(points_re, points_qc, center=center_points)
 
-            #若点太过于异常 容易引发尺度小于0的bug
             if self.scale_x <= 0 or self.scale_y <= 0:
                 self.scale_x = first_scale_x
                 self.scale_y = first_scale_y
@@ -448,7 +405,7 @@ class TemplateReference:
             self._qc_points_to_gloabal()
             # self._global_qc_points_to_global()
             points_qc = np.zeros([0, 2])
-            count = 0  # 循环次数
+            count = 0  
             while count < max_item:
 
                 temp_scale_x = self.scale_x
@@ -488,7 +445,7 @@ class TemplateReference:
                     self._point_inference(center_point, (self.mosaic_height, self.mosaic_width))
                     points_re, points_qc = self.pair_to_template(self.template_qc, self.template, self._pair_thresh) #后续优化距离时放宽阈值 效果更好
 
-                    try: #可能存在换模板中心点时到错误的位置上
+                    try: 
                         self.template_center_pt = center_point
                         self._caculate_scale_and_rotate(points_re, points_qc, update=True)
                         if self.scale_x <= 0 or self.scale_y <= 0 or \
@@ -521,11 +478,7 @@ class TemplateReference:
         clog.info("Template reference completed!")
 
     def get_template_eval(self, area_eval=True):
-        '''
-        :return:  max(dis), mean(dis) 获得此时模板与QC点的最大值与均值
-        '''
         if self.flag_skip_reference:
-            # TODO 参数均返回-1
             return -1, -1, -1, -1, -1
         self._qc_points_to_gloabal(all_points=True)
         self._outline_template()
@@ -548,12 +501,6 @@ class TemplateReference:
                len(_points_re) / len(self.template)
 
     def points_area_eval(self, points, min_num=10):
-        """
-        用来计算点簇集合
-        Args:
-            points:
-            min_num: 最小点簇的数量
-        """
         adjacency_list = list()
         max_dis = max(self.scale_x, self.scale_y) * np.max(self.chip_no)
         dis_matrix = np.linalg.norm(points - points[:, None], axis=-1)
@@ -602,53 +549,15 @@ class TemplateReference:
 
         return cluster_list
 
-    # @staticmethod
-    # def _cluster_points(adjacency_list: list = None):
-    #     """
-    #     邻接表进行聚类
-    #     """
-    #     points_all_index_list = list(range(len(adjacency_list)))
-    #     cluster_list = list()
-    #
-    #     def recurrence(temp_list, points_index_set, adjacency_list, k):
-    #         """递归找相邻对"""
-    #         k += 1
-    #         if len(temp_list) == 0:
-    #             return points_index_set, k
-    #         for index in temp_list:
-    #             if index not in points_index_set:
-    #                 adj = adjacency_list[index]
-    #                 points_index_set.add(index)
-    #                 src_list = []
-    #                 for temp in adj:
-    #                     if temp not in points_index_set:
-    #                         src_list.append(temp)
-    #                 points_index_set, k = recurrence(src_list, points_index_set, adjacency_list, k)
-    #         return points_index_set, k
-    #
-    #     while len(points_all_index_list) > 0:
-    #         points_index_set = set()
-    #         temp_list = [points_all_index_list[0]]
-    #         points_index_set, k = recurrence(temp_list, points_index_set, adjacency_list, 0)
-    #         cluster_list.append(points_index_set)
-    #         for i in points_index_set:
-    #             points_all_index_list.remove(i)
-    #
-    #     return cluster_list
-
     def get_global_eval(self):
-        """
-        :return: 全局模板的误差矩阵 用于展示
-        """
         import scipy.spatial as spt
 
         if self.flag_skip_reference:
-            # TODO 参数返回-1
             return -1
 
         self._qc_points_to_gloabal(all_points=True)
         self._outline_template()
-        points_re, points_qc = self.pair_to_template(self.template_qc, self.template, 50) #TODO 用于每个QC点都匹配上一个模板点
+        points_re, points_qc = self.pair_to_template(self.template_qc, self.template, 50) 
 
         rows, cols = self.fov_loc_array.shape[:2]
         loc_points = self.fov_loc_array.reshape([rows * cols, 2])
@@ -691,11 +600,6 @@ class TemplateReference:
         self.template = temp_template
 
     def _find_center_close_point(self, points, n=5, reverse=True):
-        '''
-        找寻距离全图中心点最近的已推导模板点
-        :param points: [x, y, ind_x, ind_y]
-        :return: self.template_center_pt
-        '''
         points[:, 0] = self.template_center_pt[0] + points[:, 0]
         points[:, 1] = self.template_center_pt[1] - points[:, 1]
 
@@ -780,11 +684,6 @@ class TemplateReference:
     '''output'''
     ################
     def save_template(self, output_path, template=None):
-        '''
-        :param output_path:
-        :param template: 可传入其他模板保存
-        :return: 保存模板点
-        '''
         if template is None:
             _template = self.template
         else: _template = template
@@ -796,10 +695,6 @@ class TemplateReference:
             clog.info("Template save failed.")
 
     def homography_image(self, image=None):
-        '''
-        :param image: str | array
-        :return: 返回单应性矩阵和变换后的template点
-        '''
 
         format_to_dtype = {
             'uchar': np.uint8,

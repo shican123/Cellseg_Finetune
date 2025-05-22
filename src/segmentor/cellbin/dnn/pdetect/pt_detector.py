@@ -61,7 +61,7 @@ class PointDetector(object):
         padded_img = letterbox(enhance_img, self.img_size)
         # Convert
         adjust_img = padded_img.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
-        adjust_img = np.ascontiguousarray(adjust_img)  # 变成C连续数组(内存连续), 处理速度更快
+        adjust_img = np.ascontiguousarray(adjust_img)  
         adjust_img = np.float32(adjust_img)  # must do this for onnx
         adjust_img /= 255
         return ori_shape, adjust_img

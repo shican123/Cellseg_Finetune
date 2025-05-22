@@ -11,12 +11,6 @@ import numpy as np
 class TissueSegmentationBcdu(object):
     def __init__(self, input_size=(512, 512, 1),
                  img_type="SSDNA", gpu="-1", mode="onnx", num_threads=0, deep="deep"):
-        """
-
-        :param deep:deep 深度学习推理
-        :param img_type:ssdna，rna
-        :param model_path:模型路径
-        """
         self._INPUT_SIZE = input_size
 
         self._deep = deep
@@ -38,11 +32,6 @@ class TissueSegmentationBcdu(object):
         self._INPUT_SIZE = self._model.f_get_input_shape()
 
     def f_predict(self, img):
-        """
-
-        :param img:CHANGE
-        :return: 模型输入图，掩模小图
-        """
         img = np.squeeze(img)
         src_shape = img.shape[:2]
 

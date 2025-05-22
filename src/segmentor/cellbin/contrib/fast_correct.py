@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar  7 11:14:43 2023
-
-@author: wuyiwen
-"""
 import os
 import datetime
 import cv2

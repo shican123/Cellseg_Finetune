@@ -5,9 +5,9 @@ import tifffile as tif
 
 class RoiTrack2Template(object):
     """
-    20x或40x返回可用于做模板推导的图像
-    20x -- 返回三张FOV图
-    40x -- 返回七张FOV图
+    20x or 40x returns an image that can be used for template derivation
+    20x -- returns three FOV images
+    40x -- returns seven FOV images`
     """
     def __init__(self, images_path,
                  jitter_list: list() = None,
@@ -62,11 +62,6 @@ class RoiTrack2Template(object):
         self.rows, self.cols = self.horizontal_jitter.shape[:2]
 
     def getRoiImages(self, k=5, threold=None):
-        """
-        :param k: 取前K对
-        :param threold: track点阈值
-        返回局部拼接好的图像对
-        """
         all_dst_list = list()
         for row in range(self.rows):
             for col in range(self.cols):

@@ -25,7 +25,7 @@ def rotate(ptx, pty, angle, original_shape, new_shape):
 @njit(parallel=True)
 def multiply_sum(a, b):
     """
-    2023/09/20 @fxzhao 计算矩阵相乘后的累加和
+    Calculate the cumulative sum after matrix multiplication
     """
     res = 0
     (h, w) = a.shape
@@ -109,7 +109,7 @@ class AlignByTrack:
         )
 
         if flip:
-            new_px = new_shape[1] - 1 - new_px  # 翻转, 注意这里是用的图片的形状, 所以要-1
+            new_px = new_shape[1] - 1 - new_px  # Flip, note that the shape of the image is used here, so -1 is required
             chip_xlen, chip_ylen = [len(chip_template[0]), len(chip_template[1])]
             ids[:, 0] = chip_xlen - 1 - ids[:, 0]
         pts_ids = np.hstack((new_px, new_py, ids))
@@ -118,7 +118,7 @@ class AlignByTrack:
     @staticmethod
     def cal_score(transformed_image, vision_image, offset):
         """
-        2023/09/20 @fxzhao 使用切片代替padding操作,加速并降低内存
+        Use slices instead of padding operations to speed up and reduce memory usage
         """
         # if offset[0] < 0:
         #     left_x = int(round(abs(offset[0])))
@@ -221,7 +221,7 @@ class AlignByTrack:
         score_max = 0
         offset_last = []
 
-        # 依次遍历上下左右9个FOV的匹配程度
+        # Traverse the matching degree of the 9 FOVs in turn
         for row in self.search_range_x:
             for col in self.search_range_y:
                 offset_temp = [offset_ori[0] + col * self.fov_size, offset_ori[1] + row * self.fov_size]

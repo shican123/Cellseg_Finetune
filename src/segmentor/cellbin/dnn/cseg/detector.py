@@ -50,11 +50,6 @@ class Segmentation(CellSegmentation):
             self._sess = CellPredict(self._model, f_preformat, f_postformat)
 
     def f_predict(self, img):
-        """
-        :param img:CHANGE
-        :return: 掩模大图
-        2023/09/21 @fxzhao 设置need_fun_ret为False,当前版本未用到此结果
-        """
         img = f_prepocess(img)
         sp_run = SplitWSI(img, self._win_size, self._overlap, 100, False, True, False, np.uint8,dst_shape=(img.shape[:2]))
         sp_run.f_set_run_fun(self._sess.f_predict)

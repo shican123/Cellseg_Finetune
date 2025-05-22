@@ -41,16 +41,16 @@ def nms_rotate_cpu(boxes, scores, iou_threshold, max_output_size):
     return: the remaining index of box
     """
     keep = []
-    order = scores.argsort()[::-1]  # 对score进行从高到低排序排序, 返回index
-    num = boxes.shape[0]  # 一共有多少个bbx
-    suppressed = np.zeros((num), dtype=int)  # 记录不要的box的index
+    order = scores.argsort()[::-1]  
+    num = boxes.shape[0]  
+    suppressed = np.zeros((num), dtype=int)  
     for _i in range(num):
-        if len(keep) >= max_output_size:  # 当输出数量达到最大值结束
+        if len(keep) >= max_output_size: 
             break
-        i = order[_i]  # 当前index
-        if suppressed[i] == 1:  # 如果在不要的里面, 那么就继续
+        i = order[_i] 
+        if suppressed[i] == 1: 
             continue
-        keep.append(i)  # 放入到keep中
+        keep.append(i) 
         tmp_dist = cdist(boxes[i, :2].reshape(-1, 2), boxes[order[_i + 1:], :2])
         tmp = order[_i + 1:][np.where(tmp_dist <= np.min(boxes[i, 2: 4]))[1]]
         suppressed[tmp] = 1

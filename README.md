@@ -41,6 +41,11 @@ If filename contains coordinates like `chipA-x512_y512_w256_h256-img.tif,` cropp
 
 Output format: `chip_id-xX_yY_wW_hH-img/mask.tif`, useful for traceability.
 
+### Data Annotation
+
+If your data is not annotated, here is a [tutorial](./docs/Tutorial%20on%20Cell%20Annotation%20Using%20Qupath.md) for manual cell annotation using Qupath.
+
+
 ### Format
 
 Images and masks format should be `.tif`.
@@ -74,19 +79,29 @@ This txt file will be used as a necessary parameter input for subsequent fine-tu
 
 ## Start Fine-Tuning
 
+Download link for the v3 pre-trained models: https://bgipan.genomics.cn/#/link/2AZUv6JJfC4KqL74Rrn0
+
+Password: 8eGM
+
+Pre-trained models included:
+
+- DAPI/ssDNA: cellseg_bcdu_SHDI_221008_tf.hdf5
+
+- HE: cellseg_bcdu_H_240823_tf.hdf5
+
 ### Run the main script:
 
 ```bash
 python run_finetune.py \
-  -m cellpose \
-  -t ss \
+  -m model_name/cellpose/or/v3 \
+  -t stain/type/ss/or/he \
   -f trainset_list/my_trainset_list.txt \
-  -p cyto \
+  -p cyto/or/pretrained/model/path \
   -r 0.9 \
   -b 8 \
   -v 16 \
   -e 100
-  ```
+```
 
 ### Required Parameter
 
@@ -105,6 +120,27 @@ python run_finetune.py \
 |  -b   | 6  |Training batch size     |
 |  -v   | 16 |Validation batch size    |
 |  -e   | 500 | Number of training epochs. For the v3 model, due to its early stopping mechanism, it is the maximum number of training rounds. For the Cellpose model without early stopping, Cellpose officially recommends training for 100 epochs, and it may help to use more epochs, especially when you have more training data.     |
+
+Example: Fine-tuning the Cellpose Model
+
+```bash
+python run_finetune.py \
+  -m cellpose \
+  -t ss \
+  -f trainset_list/C05073F4_ss_trainset_list.txt \
+  -p cyto \
+  -e 100
+```
+Example: Fine-tuning the V3 Model
+
+```bash
+python run_finetune.py \
+  -m v3 \
+  -t ss \
+  -f trainset_list/C05073F4_ss_trainset_list.txt \
+  -p weights/cellseg_bcdu_SHDI_221008_tf.hdf5 \
+  -e 500
+```
 
 ### Output
 

@@ -1,7 +1,9 @@
 import sys
+import os
+sys.path.append(os.getcwd())
+
 import glob
 import argparse
-import os
 from traceback import print_exc
 import tifffile
 from utils.utils import auto_make_dir

@@ -3,9 +3,6 @@ import math
 
 
 def get_mass(image):
-    """
-    2023/09/20 @fxzhao 移除类型转换,不影响结果
-    """
     image = image.astype(float)  # 别动这里！！！
     image_x = np.sum(image, 0)
     xx = np.array(range(len(image_x)))

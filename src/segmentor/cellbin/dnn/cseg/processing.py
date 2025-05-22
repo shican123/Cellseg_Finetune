@@ -12,10 +12,10 @@ import tifffile
 
 def f_prepocess(img):
     """
-    预处理函数，根据图像的通道数选择不同的预处理流程。
-    
-    :param img: 输入图像
-    :return: 预处理后的图像
+    Preprocessing function, select different preprocessing processes according to the number of channels of the image.
+
+    :param img: input image
+    :return: preprocessed image
     """
     if isinstance(img, str):
         img = tifffile.imread(img)
@@ -53,9 +53,6 @@ def f_pre_ssdna(img):
     img = f_histogram_normalization(img)
     return img
 # def f_prepocess(img):
-#     """
-#     2023/09/20 @fxzhao 优化图像16转8;增加对img的dtype判断,降低类型转换开销;支持传入图片路径
-#     """
 #     if isinstance(img, str):
 #         img = tifffile.imread(img)
 #     img = np.squeeze(img)
@@ -103,13 +100,10 @@ def normalize_to_0_255(arr):
     if v_max == 0:
         return arr
 
-    # 判断是否存在值在0-255的区间内
     if 0 <= v_min <= 255 or 0 <= v_max <= 255 or (v_max > 255 and v_min < 0):
-        # 如果存在，将这些值乘以一个因子
         factor = 1000
         np.multiply(arr, factor)
 
-    # 进行归一化
     arr_min = np.min(arr)
     arr_max = np.max(arr)
     return ((arr - arr_min) * 255) / (arr_max - arr_min)

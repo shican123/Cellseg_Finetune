@@ -70,9 +70,9 @@ The only difference between the file names of each image and its corresponding m
 
 ```bash
 python tools/make_trainset_txt.py \
-  --img_dir dataset/images \
-  --mask_dir dataset/masks \
-  --output_txt trainset_list/my_trainset_list.txt
+  -img dataset/images \
+  -mask dataset/masks \
+  -o trainset_list/my_trainset_list.txt
 ```
 
 This txt file will be used as a necessary parameter input for subsequent fine-tuning.
